@@ -1,7 +1,13 @@
+#include "ir_sensor.h"
+
+filter f;
+
 void setup (){
   Serial.begin (9600);
 }
 
-int main (){
-  Serial.println (analogRead (A0));
+void loop (){
+  int value = read_raw (A0);
+  Serial.println (f.step (value));
+  delay (40); 
 }
