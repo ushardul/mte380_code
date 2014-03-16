@@ -2,9 +2,10 @@
 #define motor_control
 #include <Arduino.h>
 #include <inttypes.h>
+#include <Servo.h>
 
-void arm_motor();
-int motor_speed(int power);
-void stop_motor();
+void arm_motor(Servo);
+int motor_speed(Servo,int);
+void stop_motor(Servo);
 
 #endif
