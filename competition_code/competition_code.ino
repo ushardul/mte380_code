@@ -14,6 +14,8 @@ void setup (){
   init_sensor (&side, PIN_SIDE_SENSOR);
   init_sensor (&angled, ANGLED_SIDE_SENSOR);
   arm_motor(brushless);
+  motor_speed(brushless,64);
+  delay(10000);
 }
 
 void loop (){

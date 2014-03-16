@@ -10,7 +10,7 @@ void arm_motor(Servo brushless){
   //brushless.write();
   
 }
-int motorspeed(Servo brushless, int power){
+void motor_speed(Servo brushless, int power){
   int throttle = 0;
   //arm_motor();
   if(power<0 || power>100)
@@ -19,9 +19,10 @@ int motorspeed(Servo brushless, int power){
   {
       throttle = map(power, 0, 100, 0, 179);
       brushless.write(throttle);
+      Serial.println(throttle);
 }
 }
-void stopmotor(Servo brushless){
+void stop_motor(Servo brushless){
   brushless.write(100);
 }
 

@@ -5,7 +5,7 @@
 #include <Servo.h>
 
 void arm_motor(Servo);
-int motor_speed(Servo,int);
+void motor_speed(Servo,int);
 void stop_motor(Servo);
 
 #endif
