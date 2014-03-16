@@ -23,6 +23,7 @@ void motor_speed(Servo brushless, int power){
 }
 }
 void stop_motor(Servo brushless){
-  brushless.write(100);
+  int stop_val = map(0, 0, 100, 0, 179);
+  brushless.write(stop_val);
 }
 
