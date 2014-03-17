@@ -8,8 +8,10 @@
 #define PIN_ANGLED_SENSOR A1
 #define PIN_MOTOR_CONTROL 10
 #define PIN_RUDDER_CONTROL 11
-#define PIN_MAIN_SWITCH 2 
+#define PIN_MAIN_SWITCH 9 
 #define PIN_SPEED_POT A2
+
+#define DEBOUNCE 200
 
 static DSensor side;
 static DSensor angled;
@@ -19,9 +21,9 @@ static Servo brushless;
 static Rudder rudder;
 static Servo rudder_servo;
 
-int state, reading, previous=LOW, pot_power;
+int state=LOW, reading, previous=LOW, pot_power;
 double reference, input, output;
-long time=0, debounce = 200;
+long time=0;
 
 PID rudder_control (&input, &output, &reference,0.5, 1, 2, DIRECT);
 
@@ -41,13 +43,21 @@ void setup (){
 
 void loop (){
   reading = digitalRead(PIN_MAIN_SWITCH);
-  if (reading==HIGH && previous==LOW && millis()-time>debounce)
+  if (reading==HIGH && previous==LOW && millis()-time>DEBOUNCE)
   {
-    motor_speed(&brushless, pot_power);
+    if (state == HIGH)
+    {
+      state = LOW;
+      stop_motor(&brushless);
+    }
+    else
+    {
+      state = HIGH;
+      motor_speed(&brushless, pot_power);
+    }
     time=millis();
   }
-  else
-  stop_motor(&brushless);    
+  previous = reading;
   float side_sensor = read_distance (&side);
   float angle_sensor = read_distance (&angled);
   Serial.print ("{");
