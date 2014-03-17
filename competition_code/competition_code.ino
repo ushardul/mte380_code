@@ -21,7 +21,7 @@ static Servo brushless;
 static Rudder rudder;
 static Servo rudder_servo;
 
-int state=LOW, reading, previous=LOW, pot_power;
+int state=LOW, reading, previous=LOW, pot_power, pot_power_range;
 double reference, input, output;
 long time=0;
 
@@ -31,7 +31,6 @@ void setup (){
   pinMode(PIN_MAIN_SWITCH, INPUT);
   pinMode(PIN_SPEED_POT, INPUT);
   Serial.begin (9600);
-  pot_power = analogRead(PIN_SPEED_POT);
   init_sensor (&side, PIN_SIDE_SENSOR);
   init_sensor (&angled, PIN_ANGLED_SENSOR);
   arm_motor(&brushless, PIN_MOTOR_CONTROL);
@@ -56,24 +55,16 @@ void loop (){
     else
     {
       state = HIGH;
-      motor_speed(&brushless, pot_power);
+      pot_power = analogRead(PIN_SPEED_POT);
+      pot_power_range = map(pot_power,0,1023,0,100);
+      motor_speed(&brushless, pot_power_range);
     }
     time=millis();
   }
-  previous = reading;
   float side_sensor = read_distance (&side);
   float angle_sensor = read_distance (&angled);
-  Serial.print ("{");
-  Serial.print (side_sensor);
-  Serial.print (",");
-  Serial.print (angle_sensor);
-  Serial.print ("}");
-  Serial.print ("->");
-  
   input = side_sensor;
   rudder_control.Compute ();  
   set_angle (&rudder, output);
-  
-  Serial.println (output);
   delay (40);
 }
