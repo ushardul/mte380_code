@@ -13,6 +13,7 @@ uint16_t read_raw (DSensor * sens){
   return analogRead (sens->read_pin);
 }
 
+// See: http://www.schwietering.com/jayduino/filtuino/
 float read_filtered (DSensor * sens){
   
   sens->v[0] = sens->v[1];
