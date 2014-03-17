@@ -35,8 +35,6 @@ void setup (){
   init_sensor (&side, PIN_SIDE_SENSOR);
   init_sensor (&angled, PIN_ANGLED_SENSOR);
   arm_motor(&brushless, PIN_MOTOR_CONTROL);
-  motor_speed(brushless,60);
-  delay(10000);
   init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 90, -60, 30);
   
   input = read_distance (&side);
