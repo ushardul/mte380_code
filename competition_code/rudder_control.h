@@ -7,15 +7,15 @@
 struct servo_control{
   Servo * servo;
   uint8_t pin;
-  uint8_t zero_angle;
-  uint8_t max_lim;
-  uint8_t min_lim;
+  int16_t zero_angle;
+  int16_t max_lim;
+  int16_t min_lim;
 };
 
 typedef servo_control Rudder;
 
-void init_rudder (Rudder *, Servo *, uint8_t pin, uint8_t zero_angle, int8_t min_lim, int8_t max_lim);
+void init_rudder (Rudder *, Servo *, uint8_t pin, int16_t zero_angle, int16_t min_lim, int16_t max_lim);
 
-void set_angle (Rudder *, int8_t);
+void set_angle (Rudder *, int16_t);
 
 #endif

@@ -19,18 +19,18 @@ static Servo rudder_servo;
 
 
 double reference, input, output;
-PID rudder_control (&input, &output, &reference,100, 0, 0, DIRECT);
+PID rudder_control (&input, &output, &reference,0.5, 1, 2, DIRECT);
 
 void setup (){
   Serial.begin (9600);
   init_sensor (&side, PIN_SIDE_SENSOR);
   init_sensor (&angled, PIN_ANGLED_SENSOR);
-  //arm_motor(brushless);
+  arm_motor(brushless);
   motor_speed(brushless,60);
-  //delay(10000);
+  delay(10000);
   input = read_distance (&side);
   reference = 20;
-  init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 90, -50, 50);
+  init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 90, -60, 30);
   rudder_control.SetMode (AUTOMATIC);
 }
 
@@ -45,7 +45,7 @@ void loop (){
   Serial.print ("->");
   
   input = side_sensor;
-  output = rudder_control.Compute ();  
+  rudder_control.Compute ();  
   set_angle (&rudder, output);
   
   Serial.println (output);
