@@ -21,6 +21,8 @@ static Servo brushless;
 static Rudder rudder;
 static Servo rudder_servo;
 
+static volatile uint8_t e_stop_flag = 0;
+
 int state=LOW, reading, previous=LOW, pot_power;
 double reference, input, output;
 long time=0;
@@ -30,6 +32,7 @@ PID rudder_control (&input, &output, &reference,0.5, 1, 2, DIRECT);
 void setup (){
   pinMode(PIN_MAIN_SWITCH, INPUT);
   pinMode(PIN_SPEED_POT, INPUT);
+  attachInterrupt (0, e_stop, RISING);
   Serial.begin (9600);
   pot_power = analogRead(PIN_SPEED_POT);
   init_sensor (&side, PIN_SIDE_SENSOR);
@@ -45,6 +48,9 @@ void setup (){
 }
 
 void loop (){
+  if (e_stop_flag == 1){
+    while (true);
+  }
   reading = digitalRead(PIN_MAIN_SWITCH);
   if (reading==HIGH && previous==LOW && millis()-time>DEBOUNCE)
   {
@@ -76,4 +82,10 @@ void loop (){
   
   Serial.println (output);
   delay (40);
+}
+
+void e_stop (){
+  stop_motor (&brushless);
+  rudder_control.SetMode (MANUAL);
+  e_stop_flag = 1; 
 }
