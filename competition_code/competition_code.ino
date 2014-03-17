@@ -25,12 +25,15 @@ void setup (){
   Serial.begin (9600);
   init_sensor (&side, PIN_SIDE_SENSOR);
   init_sensor (&angled, PIN_ANGLED_SENSOR);
-  arm_motor(brushless);
+  //arm_motor(brushless);
   motor_speed(brushless,60);
-  delay(10000);
+  //delay(10000);
+  init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 90, -60, 30);
+  
   input = read_distance (&side);
   reference = 20;
-  init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 90, -60, 30);
+  rudder_control.SetSampleTime (20);
+  rudder_control.SetOutputLimits (-30, 30);
   rudder_control.SetMode (AUTOMATIC);
 }
 
