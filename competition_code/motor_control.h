@@ -4,8 +4,8 @@
 #include <inttypes.h>
 #include <Servo.h>
 
-void arm_motor(Servo);
-void motor_speed(Servo,int);
-void stop_motor(Servo);
+void arm_motor(Servo *,int);
+void motor_speed(Servo *,int);
+void stop_motor(Servo *);
 
 #endif
