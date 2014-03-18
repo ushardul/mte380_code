@@ -11,7 +11,7 @@
 #define PIN_MAIN_SWITCH 9 
 #define PIN_SPEED_POT A2
 
-#define DEBOUNCE 200
+#define DEBOUNCE 100
 
 static DSensor side;
 static DSensor angled;
@@ -27,7 +27,7 @@ int state=LOW, reading, previous=LOW, pot_power, pot_power_range;
 double reference, input, output;
 long time=0;
 
-PID rudder_control (&input, &output, &reference,0.5, 1, 2, DIRECT);
+PID rudder_control (&input, &output, &reference,1, 5, 2, DIRECT);
 
 void setup (){
   pinMode(PIN_MAIN_SWITCH, INPUT);
@@ -36,9 +36,8 @@ void setup (){
   Serial.begin (9600);
   init_sensor (&side, PIN_SIDE_SENSOR);
   init_sensor (&angled, PIN_ANGLED_SENSOR);
+  init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 115, -25, 30);
   arm_motor(&brushless, PIN_MOTOR_CONTROL);
-  init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 90, -60, 30);
-  
   input = read_distance (&side);
   reference = 20;
   rudder_control.SetSampleTime (20);
@@ -76,7 +75,7 @@ void loop (){
   Serial.print ("}");
   Serial.print ("->");
   
-  input = side_sensor;
+  input = side_sensor*0.707;
   rudder_control.Compute ();  
   set_angle (&rudder, output);
   
