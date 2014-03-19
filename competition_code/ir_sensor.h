@@ -13,8 +13,8 @@ const float SHIFT_X_150 = 6.682;
 const float SHIFT_Y_150 = -1.473;
 
 // constants for 80 cm IR sensors
-const float SCALE_80 = 31.71;
-const float SHIFT_X_80 = -0.01928;
+const float SCALE_80 = 6495;
+const float SHIFT_X_80 = -3.948;
 const float SHIFT_Y_80 = -4.271;
 
 // constants for 30 cm IR sensor

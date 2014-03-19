@@ -12,8 +12,7 @@ void init_sensor (DSensor * sens, uint8_t pin, uint8_t sensor_type){
     sens->SCALE = SCALE_150;
     sens->SHIFT_X = SHIFT_X_150;
     sens->SHIFT_Y = SHIFT_Y_150;
-  }
-  else if (sensor_type == IR_SENSOR_80){
+  } else if (sensor_type == IR_SENSOR_80){
     sens->SCALE = SCALE_80;
     sens->SHIFT_X = SHIFT_X_80;
     sens->SHIFT_Y = SHIFT_Y_80;

@@ -37,8 +37,8 @@ void setup (){
   pinMode(PIN_SPEED_POT, INPUT);
   attachInterrupt (0, e_stop, RISING);
   Serial.begin (9600);
-  init_sensor (&front, PIN_FRONT_SENSOR, IR_SENSOR_80);
-  init_sensor (&angled, PIN_ANGLED_SENSOR, IR_SENSOR_150);
+  init_sensor (&front, PIN_FRONT_SENSOR, IR_SENSOR_150);
+  init_sensor (&angled, PIN_ANGLED_SENSOR, IR_SENSOR_80);
   init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 100, -40, 40);
   arm_motor(&brushless, PIN_MOTOR_CONTROL);
   input = read_distance (&front);
@@ -78,6 +78,14 @@ void loop (){
       ki = map (ki, 0, 1023, 0, 10);
       rudder_control.SetTunings (kp, kd, ki);
       rudder_control.SetMode (AUTOMATIC);
+      
+      Serial.print ("{");
+      Serial.print (kp);
+      Serial.print (",");
+      Serial.print (kd);
+      Serial.print (",");
+      Serial.print (ki);
+      Serial.println ("}");
     }
     time=millis();
   }
