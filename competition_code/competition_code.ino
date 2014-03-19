@@ -4,16 +4,19 @@
 #include "motor_control.h"
 #include "rudder_control.h"
 
-#define PIN_SIDE_SENSOR A0
+#define PIN_FRONT_SENSOR A0
 #define PIN_ANGLED_SENSOR A1
+#define PIN_SPEED_POT A2
+#define PIN_KP_POT A3
+#define PIN_KD_POT A4
+#define PIN_KI_POT A5
 #define PIN_MOTOR_CONTROL 10
 #define PIN_RUDDER_CONTROL 11
 #define PIN_MAIN_SWITCH 9 
-#define PIN_SPEED_POT A2
 
 #define DEBOUNCE 400
 
-static DSensor side;
+static DSensor front;
 static DSensor angled;
 
 static Servo brushless;
@@ -34,11 +37,11 @@ void setup (){
   pinMode(PIN_SPEED_POT, INPUT);
   attachInterrupt (0, e_stop, RISING);
   Serial.begin (9600);
-  init_sensor (&side, PIN_SIDE_SENSOR);
-  init_sensor (&angled, PIN_ANGLED_SENSOR);
+  init_sensor (&front, PIN_FRONT_SENSOR, IR_SENSOR_80);
+  init_sensor (&angled, PIN_ANGLED_SENSOR, IR_SENSOR_150);
   init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 100, -40, 40);
   arm_motor(&brushless, PIN_MOTOR_CONTROL);
-  input = read_distance (&side);
+  input = read_distance (&front);
   reference = 20;
   rudder_control.SetSampleTime (20);
   rudder_control.SetOutputLimits (-30, 30);
@@ -56,6 +59,8 @@ void loop (){
     {
       state = LOW;
       stop_motor(&brushless);
+      rudder_control.SetMode (MANUAL);
+      set_angle (&rudder, 0);
     }
     else
     {
@@ -63,19 +68,29 @@ void loop (){
       pot_power = analogRead(PIN_SPEED_POT);
       pot_power_range = map(pot_power,0,1023,0,100);
       motor_speed(&brushless, pot_power_range);
+      
+      int kp = analogRead (PIN_KP_POT);
+      int kd = analogRead (PIN_KD_POT);
+      int ki = analogRead (PIN_KI_POT);
+      
+      kp = map (kp, 0, 1023, 0, 10);
+      kd = map (kd, 0, 1023, 0, 10);
+      ki = map (ki, 0, 1023, 0, 10);
+      rudder_control.SetTunings (kp, kd, ki);
+      rudder_control.SetMode (AUTOMATIC);
     }
     time=millis();
   }
-  float side_sensor = read_distance (&side);
+  float front_sensor = read_distance (&front);
   float angle_sensor = read_distance (&angled);
   Serial.print ("{");
-  Serial.print (side_sensor);
+  Serial.print (front_sensor);
   Serial.print (",");
   Serial.print (angle_sensor);
   Serial.print ("}");
   Serial.print ("->");
   
-  input = side_sensor*0.707;
+  input = angle_sensor*0.707;
   rudder_control.Compute ();  
   set_angle (&rudder, output);
   

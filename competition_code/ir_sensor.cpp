@@ -2,11 +2,26 @@
 #include <Arduino.h>
 #include <inttypes.h>
 
-void init_sensor (DSensor * sens, uint8_t pin){
+void init_sensor (DSensor * sens, uint8_t pin, uint8_t sensor_type){
   sens->v[0] = 0;
   sens->v[1] = 0;
   sens->v[2] = 0;
   sens->read_pin = pin;
+  
+  if (sensor_type == IR_SENSOR_150){
+    sens->SCALE = SCALE_150;
+    sens->SHIFT_X = SHIFT_X_150;
+    sens->SHIFT_Y = SHIFT_Y_150;
+  }
+  else if (sensor_type == IR_SENSOR_80){
+    sens->SCALE = SCALE_80;
+    sens->SHIFT_X = SHIFT_X_80;
+    sens->SHIFT_Y = SHIFT_Y_80;
+  } else if (sensor_type == IR_SENSOR_30){
+    sens->SCALE = SCALE_30;
+    sens->SHIFT_X = SHIFT_X_30;
+    sens->SHIFT_Y = SHIFT_Y_30;
+  }
 }
 
 uint16_t read_raw (DSensor * sens){
@@ -24,6 +39,6 @@ float read_filtered (DSensor * sens){
 
 float read_distance (DSensor * sens){
   int a_value = read_filtered (sens);
-  return SCALE/(a_value + SHIFT_X) + SHIFT_Y;
+  return (sens->SCALE)/(a_value + sens->SHIFT_X) + (sens->SHIFT_Y);
 }
 
