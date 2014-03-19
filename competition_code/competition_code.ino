@@ -2,7 +2,6 @@
 #include "PID_v1.h"
 #include "ir_sensor.h"
 #include "DCMotor.h"
-#include "rudder_control.h"
 #include "AFMotor.h"
 
 #define PIN_FRONT_SENSOR A0
@@ -11,30 +10,24 @@
 #define PIN_KP_POT A3
 #define PIN_KD_POT A4
 #define PIN_KI_POT A5
-#define PIN_RUDDER_CONTROL 13
 #define PIN_MAIN_SWITCH 2
-#define PIN_LEFT_MOTOR 1
-#define PIN_RIGHT_MOTOR 2
-
+#define PIN_LEFT_MOTOR 11
+#define PIN_RIGHT_MOTOR 3
 #define DEBOUNCE 400
 
 static DSensor front;
 static DSensor angled;
 
-static Rudder rudder;
-static Servo rudder_servo, rudder_control;
 
 AF_DCMotor left_motor(PIN_LEFT_MOTOR, MOTOR12_64KHZ); 
 AF_DCMotor right_motor(PIN_RIGHT_MOTOR, MOTOR12_64KHZ);
 
 static volatile uint8_t e_stop_flag = 0;
 int state=LOW, reading, previous=LOW, pot_power, pot_power_range;
-uint8_t speedLeft, speedRight
+uint8_t speedLeft, speedRight;
 
 double reference, input, output;
 long time=0;
-
-PID rudder_control (&input, &output, &reference,1, 5, 2, DIRECT);
 
 void setup (){
   pinMode(PIN_MAIN_SWITCH, INPUT);
@@ -43,13 +36,10 @@ void setup (){
   Serial.begin (9600);
   init_sensor (&front, PIN_FRONT_SENSOR, IR_SENSOR_150);
   init_sensor (&angled, PIN_ANGLED_SENSOR, IR_SENSOR_80);
-  init_rudder (&rudder, &rudder_servo, PIN_RUDDER_CONTROL, 100, -40, 40);
+
   
   input = read_distance (&front);
   reference = 20;
-  rudder_control.SetSampleTime (20);
-  rudder_control.SetOutputLimits (-30, 30);
-  rudder_control.SetMode (MANUAL);
 }
 
 void loop (){
@@ -78,8 +68,6 @@ void loop (){
       kp = map (kp, 0, 1023, 0, 10);
       kd = map (kd, 0, 1023, 0, 10);
       ki = map (ki, 0, 1023, 0, 10);
-      rudder_control.SetTunings (kp, kd, ki);
-      rudder_control.SetMode (AUTOMATIC);
       
       Serial.print ("{");
       Serial.print (kp);
@@ -101,15 +89,13 @@ void loop (){
   Serial.print ("->");
   
   input = angle_sensor*0.707;
-  rudder_control.Compute ();  
-  set_angle (&rudder, output);
   
   Serial.println (output);
   delay (40);
 }
 
-void e_stop (){
-  stop_motor (&brushless);
-  rudder_control.SetMode (MANUAL);
-  e_stop_flag = 1; 
-}
+//void e_stop (){
+//  stop_motor (&brushless);
+//  rudder_control.SetMode (MANUAL);
+//  e_stop_flag = 1; 
+//}
