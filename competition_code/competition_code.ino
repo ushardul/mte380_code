@@ -1,8 +1,7 @@
-#include <Servo.h>
 #include "PID_v1.h"
 #include "ir_sensor.h"
 #include "DCMotor.h"
-#include <AFMotor.h>
+#include "AFMotor.h"
 
 #define PIN_FRONT_SENSOR A0
 #define PIN_ANGLED_SENSOR A1
