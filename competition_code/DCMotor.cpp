@@ -4,7 +4,9 @@
 void set_Speed_both(AF_DCMotor* left, AF_DCMotor* right, uint8_t speedLeft, uint8_t speedRight)
 {
   left->setSpeed(speedLeft);
+  left->run(FORWARD);
   right->setSpeed(speedRight);
+  right->run(FORWARD);
 }
  
  
