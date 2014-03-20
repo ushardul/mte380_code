@@ -2,7 +2,7 @@
 #include "PID_v1.h"
 #include "ir_sensor.h"
 #include "DCMotor.h"
-#include "AFMotor.h"
+#include <AFMotor.h>
 
 #define PIN_FRONT_SENSOR A0
 #define PIN_ANGLED_SENSOR A1
@@ -36,8 +36,6 @@ void setup (){
   Serial.begin (9600);
   init_sensor (&front, PIN_FRONT_SENSOR, IR_SENSOR_150);
   init_sensor (&angled, PIN_ANGLED_SENSOR, IR_SENSOR_80);
-
-  
   input = read_distance (&front);
   reference = 20;
 }
@@ -52,14 +50,14 @@ void loop (){
     if (state == HIGH)
     {
       state = LOW;
-      set_Speed_both(motor* left_motor, motor* right_motor, 0, 0)
+      set_Speed_both(&left_motor, &right_motor, 0, 0);
     }
     else
     {
       state = HIGH;
       pot_power = analogRead(PIN_SPEED_POT);
       pot_power_range = map(pot_power,0,1023,0,255);
-      set_Speed_both(motor* left_motor, motor* right_motor,pot_power_range,pot_power_range)
+      set_Speed_both(&left_motor, &right_motor,pot_power_range,pot_power_range);
       
       int kp = analogRead (PIN_KP_POT);
       int kd = analogRead (PIN_KD_POT);
@@ -94,8 +92,7 @@ void loop (){
   delay (40);
 }
 
-//void e_stop (){
-//  stop_motor (&brushless);
-//  rudder_control.SetMode (MANUAL);
-//  e_stop_flag = 1; 
-//}
+void e_stop (){
+  set_Speed_both(&left_motor, &right_motor, 0, 0);
+  e_stop_flag = 1; 
+}
