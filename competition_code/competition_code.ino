@@ -1,18 +1,7 @@
 #include "PID_v1.h"s
 #include "ir_sensor.h"
 #include "DCMotor.h"
-
-#define PIN_FRONT_SENSOR A0
-#define PIN_ANGLED_SENSOR A1
-#define PIN_SPEED_POT A2
-#define PIN_KP_POT A3
-#define PIN_KD_POT A4
-#define PIN_KI_POT A5
-#define PIN_MAIN_SWITCH 3
-#define PIN_LEFT_MOTOR 9
-#define PIN_RIGHT_MOTOR 10
-
-#define DEBOUNCE 400
+#include "Constant.h"
 
 static DSensor front;
 static DSensor angled;
@@ -83,22 +72,21 @@ void loop (){
     if (state == HIGH)
     {
       state = LOW;
-      stop_motor();
+      //set_Speed_both(&left_motor, &right_motor, 0, 0);
     }
     else
-    { 
+    {
       state = HIGH;
       pot_power = analogRead(PIN_SPEED_POT);
       pot_power = map(pot_power,0,1023,0,255);
       
-      int kp = analogRead (PIN_KP_POT)/1023.0*10;
-      int kd = analogRead (PIN_KD_POT)/1023.0*10;
-      int ki = analogRead (PIN_KI_POT)/1023.0*10;
+      int kp = analogRead (PIN_KP_POT);
+      int kd = analogRead (PIN_KD_POT);
+      int ki = analogRead (PIN_KI_POT);
       
-      ramp_speed (0, pot_power);
-      
-      speedControl.SetMode (AUTOMATIC);
-      speedControl.SetTunings (kp, kd, ki);
+      kp = map (kp, 0, 1023, 0, 10);
+      kd = map (kd, 0, 1023, 0, 10);
+      ki = map (ki, 0, 1023, 0, 10);
       
       Serial.print ("{");
       Serial.print (kp);

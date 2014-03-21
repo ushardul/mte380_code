@@ -1,4 +1,6 @@
 #include "DCMotor.h"
+#include <Arduino.h>
+#include "Constant.h"
 
 void set_speed_init(int pot_speed) //Take in Pot value 0-1023 and map to motor
 {
