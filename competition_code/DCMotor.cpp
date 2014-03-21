@@ -1,5 +1,9 @@
 #include "DCMotor.h"
 
+void set_speed_init(int speedLeft, int speedRight){
+}
+  
+
 /*void set_Speed_both(AF_DCMotor* left, AF_DCMotor* right, double speedLeft, double speedRight)
 {
   left->setSpeed(speedLeft);
