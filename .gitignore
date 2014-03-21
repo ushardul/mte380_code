@@ -16,3 +16,6 @@
 *.exe
 *.out
 *.app
+competition_code/Visual Micro/.competition_code.vsarduino.h
+competition_code/competition_code.sdf
+competition_code/competition_code.v12.suo
