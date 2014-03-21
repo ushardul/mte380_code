@@ -1,16 +1,26 @@
-#include <AFMotor.h>
 #include "DCMotor.h"
 
-void set_Speed_both(AF_DCMotor* left, AF_DCMotor* right, uint8_t speedLeft, uint8_t speedRight)
+/*void set_Speed_both(AF_DCMotor* left, AF_DCMotor* right, double speedLeft, double speedRight)
 {
   left->setSpeed(speedLeft);
-  left->run(FORWARD);
+  if (speedLeft > 0)
+    left->run(FORWARD);
+  else
+    left->run(RELEASE);  
+  
   right->setSpeed(speedRight);
-  right->run(FORWARD);
-}
- 
- 
-
+  if (speedRight > 0)
+    right->run(FORWARD);
+  else
+    right->run(RELEASE); 
+}*/
+/* 
+void set_Motor_Speed(int PIN_LEFT_MOTOR, int PIN_RIGHT_MOTOR, double speedLeft, double speedRight)
+{
+  analogWrite(PIN_LEFT_MOTOR,speedLeft);
+  analogWrite(PIN_RIGHT_MOTOR,speedRight);
+} 
+*/
 //  motor.run(FORWARD);      // turn it on going forward
 //  delay(1000);
 // 

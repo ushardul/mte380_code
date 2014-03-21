@@ -1,4 +1,3 @@
-#include "AFMotor.h"
 #ifndef DCMotor_H
 #define DCMotor_H
 
@@ -8,6 +7,6 @@
 //  uint8_t speedmotor;
 //}; motor
 
-void set_Speed_both(AF_DCMotor*, AF_DCMotor*, uint8_t, uint8_t);
-
+//void set_Speed_both(AF_DCMotor*, AF_DCMotor*, double, double);
+//void set_Motor_Speed(int, int, double, double);
 #endif
