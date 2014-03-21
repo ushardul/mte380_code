@@ -37,7 +37,7 @@ float read_filtered (DSensor * sens){
 }
 
 float read_distance (DSensor * sens){
-  int a_value = read_filtered (sens);
+  int a_value = read_raw (sens);
   return (sens->SCALE)/(a_value + sens->SHIFT_X) + (sens->SHIFT_Y);
 }
 

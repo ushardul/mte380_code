@@ -10,4 +10,7 @@
 #define PIN_LEFT_MOTOR 9
 #define PIN_RIGHT_MOTOR 10
 
-#define DEBOUNCE 400
+#define PIN_USONIC_TRIGGER    6
+#define PIN_USONIC_ECHO       7
+#define USONIC_MAX_DIST       150
+
