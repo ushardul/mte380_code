@@ -1,5 +1,7 @@
-#define PIN_FRONT_SENSOR A0
-#define PIN_ANGLED_SENSOR A1
+//#define MOTOROFF
+
+#define PIN_FRONT_SENSOR A1
+#define PIN_ANGLED_SENSOR A0
 #define PIN_SPEED_POT A2
 #define PIN_KP_POT A4
 //#define PIN_KD_POT A4
