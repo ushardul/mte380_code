@@ -1,5 +1,5 @@
 #include <Servo.h>
-#include "PID_v1.h"
+#include "PID_v1.h"s
 #include "ir_sensor.h"
 #include "DCMotor.h"
 
@@ -83,7 +83,7 @@ void loop (){
   if (e_stop_flag == 1){
     while (true);
   }
- /* reading = digitalRead(PIN_MAIN_SWITCH);
+  reading = digitalRead(PIN_MAIN_SWITCH);
   if (reading==HIGH && previous==LOW && millis()-time>DEBOUNCE)
   {
     if (state == HIGH)
@@ -115,27 +115,14 @@ void loop (){
       Serial.println ("}");
     }
     time=millis();
-  } */
- /* float front_sensor = read_distance (&front);
-  float angle_sensor = read_distance (&angled);
-  Serial.print ("{");
-  Serial.print (front_sensor);
-  Serial.print (",");
-  Serial.print (angle_sensor);
-  Serial.print ("}");
-  Serial.print ("->");
+  }
   
-  input = angle_sensor*0.707;
-  
-  Serial.println (output);
-  */
   frontDist =  read_distance (&front);
-sideDist =  read_distance (&angled);
-//frontDist =  80;
-//sideDist =  15;
-if (sideDist > SIDE_DIST_DESIRED - INNER_MARGIN && sideDist < SIDE_DIST_DESIRED + OUTER_MARGIN) {
-   speedControl.SetTunings(CONSKP, CONSKI, CONSKD);
-   thresholdRegion = 1;
+  sideDist =  read_distance (&angled);
+
+  if (sideDist > SIDE_DIST_DESIRED - INNER_MARGIN && sideDist < SIDE_DIST_DESIRED + OUTER_MARGIN) {
+    speedControl.SetTunings(CONSKP, CONSKI, CONSKD);
+    thresholdRegion = 1;
 }
 else {
    speedControl.SetTunings(AGGKP, AGGKI, AGGKD);
