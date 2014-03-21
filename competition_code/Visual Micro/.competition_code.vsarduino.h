@@ -32,6 +32,7 @@ extern "C" void __cxa_pure_virtual() {;}
 
 //
 //
+void processMainButtonPush();
 void e_stop ();
 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\arduino.h"

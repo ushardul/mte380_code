@@ -3,35 +3,53 @@
 #include "DCMotor.h"
 #include "Constant.h"
 
+//define to enable serial debugging
+#define DEBUG
+
+#define PROGRAM_STATE_WAITING           0
+#define PROGRAM_STATE_RUNNING           1
+
+#define MAX_MOTOR_SPEED			60
+#define MIN_MOTOR_SPEED			0
+#define LEFT_LIMIT			(-1 * (MAX_MOTOR_SPEED)) // limit the PID deltaSpeed change to maximum motor speed
+#define RIGHT_LIMIT			(MAX_MOTOR_SPEED)
+
+#define MIN_SIDE_DIST			20.0		// 20 cm minimum distance from wall
+#define MAX_SIDE_DIST			30.0		// 40 cm max distance away from wall
+
+#define MIN_FRONT_DIST			50.0		// 30 cm minimum forward distance from wall
+#define SIDE_DIST_DESIRED		25.0		//25 cm desired distance away from wall
+#define OUTER_MARGIN			5				// 2 cm margin threshold
+#define INNER_MARGIN			5
+
 static DSensor front;
 static DSensor angled;
 
 static volatile uint8_t e_stop_flag = 0;
-int state=LOW, reading, previous=LOW, pot_power;
+
+int programState = PROGRAM_STATE_WAITING; // 0 - waiting for button, 1 - running
+
+//button stuff
+int buttonReading;
+int previousButtonState = LOW;
+long lastDebounceTime = 0;
+long debounceDelay = 100;
+
+//motor speeds
 double speedLeft, speedRight;
 
-double sideRef, sideDist, deltaSpeed, frontDist;
+//PID params and sensor values
+double sideRef, deltaSpeed;
+double sideDist, frontDist;
+int kp = 1;
+int ki = 0;
+int kd = 0;
 
-double reference, input, output;
-long time=0;
+PID speedControl(&sideDist, &deltaSpeed, &sideRef, kp, ki, kd, REVERSE);
 
-PID speedControl(&sideDist,&deltaSpeed,&sideRef, 1,0,0, REVERSE);
+void processMainButtonPush();
 
-const int MAX_MOTOR_SPEED = 60;
-const int MIN_MOTOR_SPEED = 0;
-const double LEFT_LIMIT = -1*MAX_MOTOR_SPEED; // limit the PID deltaSpeed change to maximum motor speed
-const double RIGHT_LIMIT = MAX_MOTOR_SPEED;
-
-const double MIN_SIDE_DIST = 20.0; // 20 cm minimum distance from wall
-const double MAX_SIDE_DIST = 30.0; // 40 cm max distance away from wall
-
-const double MIN_FRONT_DIST = 50.0; // 30 cm minimum forward distance from wall
-const double SIDE_DIST_DESIRED = 25.0; //25 cm desired distance away from wall
-const double OUTER_MARGIN = 5; // 2 cm margin threshold
-const double INNER_MARGIN = 5; 
-int thresholdRegion = 0; //
-
-void setup (){
+void setup() {
   pinMode(PIN_MAIN_SWITCH, INPUT);
   pinMode(PIN_SPEED_POT, INPUT);
   pinMode(PIN_LEFT_MOTOR, OUTPUT);
@@ -47,43 +65,116 @@ void setup (){
   sideDist = read_distance (&angled);
 
   deltaSpeed = 0;
-  speedControl.SetOutputLimits(LEFT_LIMIT,RIGHT_LIMIT);
+  speedControl.SetOutputLimits(LEFT_LIMIT, RIGHT_LIMIT);
   speedControl.SetSampleTime(20);
-  speedControl.SetMode(AUTOMATIC);  
+  speedControl.SetMode(AUTOMATIC);
   speedLeft = MAX_MOTOR_SPEED;
   speedRight = MAX_MOTOR_SPEED;
- 
-  analogWrite(PIN_LEFT_MOTOR,speedLeft);
-  analogWrite(PIN_RIGHT_MOTOR,speedRight);
+
+  set_speed_both(speedLeft, speedRight);
 }
 
-void loop (){
-  if (e_stop_flag == 1){
+void loop() {
+  bool withinThreshold;
+
+  if (e_stop_flag == 1) {
     while (true);
   }
-  reading = digitalRead(PIN_MAIN_SWITCH);
-  if (reading==HIGH && previous==LOW && millis()-time>DEBOUNCE)
+
+  processMainButtonPush();
+
+  if (programState == PROGRAM_STATE_RUNNING) {
+
+    frontDist = read_distance(&front);
+    sideDist = read_distance(&angled) * 0.707;
+
+    speedControl.Compute();
+
+    //determine if side distance within margins
+    if (sideDist > (SIDE_DIST_DESIRED - INNER_MARGIN) && sideDist < (SIDE_DIST_DESIRED + OUTER_MARGIN))
+      withinThreshold = true;
+    else
+      withinThreshold = false;
+
+    //hard code sharp turn
+    if (frontDist < MIN_FRONT_DIST) {
+      speedControl.SetMode(MANUAL);
+      speedLeft = MIN_MOTOR_SPEED;
+      speedRight = MAX_MOTOR_SPEED + 20; // + 20 so turns faster
+      set_speed_both(speedLeft, speedRight);
+      speedControl.SetMode(AUTOMATIC);
+    }
+    else {
+      //if within margins go straight
+      if (withinThreshold) {
+        speedControl.SetMode(MANUAL);
+        speedLeft = MAX_MOTOR_SPEED;
+        speedRight = MAX_MOTOR_SPEED;
+        set_speed_both(speedLeft, speedRight);
+        speedControl.SetMode(AUTOMATIC);
+      }
+      //if outside margin
+      else {
+        speedLeft += deltaSpeed;
+        speedRight -= deltaSpeed;
+
+        if (speedLeft < MIN_MOTOR_SPEED)
+          speedLeft = MIN_MOTOR_SPEED;
+        if (speedLeft > MAX_MOTOR_SPEED)
+          speedLeft = MAX_MOTOR_SPEED;
+
+        if (speedRight < MIN_MOTOR_SPEED)
+          speedRight = MIN_MOTOR_SPEED;
+        if (speedRight > MAX_MOTOR_SPEED)
+          speedRight = MAX_MOTOR_SPEED;
+
+        set_speed_both(speedLeft, speedRight);
+      }
+    }
+
+#ifdef DEBUG
+    Serial.print("Left Motor Speed: ");
+    Serial.print(speedLeft);
+    Serial.print("\t Right Motor Speed: ");
+    Serial.print(speedRight);
+    Serial.print("\t deltaSpeed: ");
+    Serial.print(deltaSpeed);
+    Serial.print("\t Front Dist: ");
+    Serial.print(frontDist);
+    Serial.print("\t Side Dist: ");
+    Serial.println(sideDist);
+#endif
+  }
+  else
+    Serial.println("WAITING");
+
+  delay (10);
+}
+
+void processMainButtonPush() {
+  buttonReading = digitalRead(PIN_MAIN_SWITCH);
+  if (buttonReading==HIGH && (millis()-lastDebounceTime)>debounceDelay)
   {
-    if (state == HIGH)
+    if (programState == PROGRAM_STATE_RUNNING)
     {
-      state = LOW;
-      //set_Speed_both(&left_motor, &right_motor, 0, 0);
+      programState = PROGRAM_STATE_WAITING;
+      stop_motor();
     }
     else
-    {
-      state = HIGH;
-      pot_power = analogRead(PIN_SPEED_POT);
-      pot_power = map(pot_power,0,1023,0,255);
+    { 
+      programState = PROGRAM_STATE_RUNNING;
+      //pot_power = analogRead(PIN_SPEED_POT);
+      //pot_power = map(pot_power,0,1023,0,255);
       
-      int kp = analogRead (PIN_KP_POT);
-      int kd = analogRead (PIN_KD_POT);
-      int ki = analogRead (PIN_KI_POT);
+      int kp = analogRead (PIN_KP_POT)/1023.0*10;
+      int kd = 0;//analogRead (PIN_KD_POT)/1023.0*10;
+      int ki = analogRead (PIN_KI_POT)/1023.0*10;
       
-      kp = map (kp, 0, 1023, 0, 10);
-      kd = map (kd, 0, 1023, 0, 10);
-      ki = map (ki, 0, 1023, 0, 10);
+      //ramp_speed (0, pot_power);
       
-#ifdef DEBUG
+      speedControl.SetMode (AUTOMATIC);
+      speedControl.SetTunings (kp, kd, ki);
+      
       Serial.print ("{");
       Serial.print (kp);
       Serial.print (",");
@@ -91,65 +182,12 @@ void loop (){
       Serial.print (",");
       Serial.print (ki);
       Serial.println ("}");
-#endif
     }
-    time=millis();
+    lastDebounceTime = millis();
   }
-  
-  frontDist =  read_distance (&front);
-	sideDist = read_distance(&angled) * 0.707;
-
-  speedControl.Compute();
-
-  if (frontDist < MIN_FRONT_DIST) { 
-    speedControl.SetMode(MANUAL);
-    speedLeft = MIN_MOTOR_SPEED;
-    speedRight = MAX_MOTOR_SPEED;
-    analogWrite(PIN_LEFT_MOTOR,speedLeft);
-    analogWrite(PIN_RIGHT_MOTOR,speedRight);
-    speedControl.SetMode(AUTOMATIC);
-  } else {
-    if (thresholdRegion) {
-    speedControl.SetMode(MANUAL);
-    speedLeft = MAX_MOTOR_SPEED;
-    speedRight = MAX_MOTOR_SPEED;
-    analogWrite(PIN_LEFT_MOTOR,speedLeft);
-    analogWrite(PIN_RIGHT_MOTOR,speedRight);
-    speedControl.SetMode(AUTOMATIC);
-    }else {
-       speedLeft += deltaSpeed;
-       speedRight -= deltaSpeed;
-       if (speedLeft < MIN_MOTOR_SPEED)
-         speedLeft = MIN_MOTOR_SPEED;
-       if (speedLeft > MAX_MOTOR_SPEED)
-         speedLeft = MAX_MOTOR_SPEED;
-       if (speedRight < MIN_MOTOR_SPEED)
-         speedRight = MIN_MOTOR_SPEED;
-       if (speedRight > MAX_MOTOR_SPEED)
-         speedRight = MAX_MOTOR_SPEED;
-         
-       analogWrite(PIN_LEFT_MOTOR,speedLeft);
-       analogWrite(PIN_RIGHT_MOTOR,speedRight);
-    }
-  }
-
-#ifdef DEBUG
-  Serial.print("Left Motor Speed: ");
-  Serial.print(speedLeft);
-  Serial.print("\t Right Motor Speed: ");
-  Serial.print(speedRight);
-  Serial.print("\t deltaSpeed: ");
-  Serial.print(deltaSpeed);
-  Serial.print("\t Front Dist: ");
-  Serial.print(frontDist);
-  Serial.print("\t Side Dist: ");
-  Serial.println(sideDist);
-#endif
-
-  delay (10);
 }
 
-void e_stop (){
-	stop_motor();
-  e_stop_flag = 1; 
+void e_stop () {
+  stop_motor();
+  e_stop_flag = 1;
 }
