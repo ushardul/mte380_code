@@ -1,38 +1,38 @@
 #include "DCMotor.h"
 
-void set_speed_init(int speedLeft, int speedRight){
+void set_speed_init(int pot_speed) //Take in Pot value 0-1023 and map to motor
+{
+  int motorspeed = map(pot_speed,0,1023,0,255);
+  analogWrite(PIN_LEFT_MOTOR, motorspeed);
+  analogWrite(PIN_RIGHT_MOTOR, motorspeed);
+}
+
+void set_speed_left(int set_speed_left) // Take in speed and set motor to speed
+{
+  analogWrite(PIN_LEFT_MOTOR, set_speed_left);
+}
+
+void set_speed_right(int set_speed_right) // Take in speed and set motor to speed
+{
+  analogWrite(PIN_RIGHT_MOTOR, set_speed_right);
+}
+
+void ramp_speed(int speed1, int speed2, int steps) //Take in initial and ramp up or down to new speed
+{
+  analogWrite(PIN_LEFT_MOTOR, speed1);
+  analogWrite(PIN_RIGHT_MOTOR, speed1);
+  for(int i; i<steps; i++)
+  {
+    
+  }
+}
+    
+void stop_motor();
+{
+  analogWrite(PIN_LEFT_MOTOR, 0);
+  analogWrite(PIN_RIGHT_MOTOR, 0);
 }
   
 
-/*void set_Speed_both(AF_DCMotor* left, AF_DCMotor* right, double speedLeft, double speedRight)
-{
-  left->setSpeed(speedLeft);
-  if (speedLeft > 0)
-    left->run(FORWARD);
-  else
-    left->run(RELEASE);  
-  
-  right->setSpeed(speedRight);
-  if (speedRight > 0)
-    right->run(FORWARD);
-  else
-    right->run(RELEASE); 
-}*/
-/* 
-void set_Motor_Speed(int PIN_LEFT_MOTOR, int PIN_RIGHT_MOTOR, double speedLeft, double speedRight)
-{
-  analogWrite(PIN_LEFT_MOTOR,speedLeft);
-  analogWrite(PIN_RIGHT_MOTOR,speedRight);
-} 
-*/
-//  motor.run(FORWARD);      // turn it on going forward
-//  delay(1000);
-// 
-//  Serial.print("tock");
-//  motor.run(BACKWARD);     // the other way
-//  delay(1000);
-//  
-//  Serial.print("tack");
-//  motor.run(RELEASE);      // stopped
-//  delay(1000);
+
 
