@@ -15,14 +15,7 @@ double sideRef, sideDist, deltaSpeed, frontDist;
 double reference, input, output;
 long time=0;
 
-const double AGGKP = 0.45;
-const double CONSKP = 0.1;
-const double AGGKD= 0.2;
-const double CONSKD = 0;
-const double AGGKI = 0;
-const double CONSKI = 0;
-
-PID speedControl(&sideDist,&deltaSpeed,&sideRef, AGGKP,AGGKI,AGGKD,REVERSE);
+PID speedControl(&sideDist,&deltaSpeed,&sideRef, 1,0,0, REVERSE);
 
 const int MAX_MOTOR_SPEED = 60;
 const int MIN_MOTOR_SPEED = 0;
@@ -34,8 +27,8 @@ const double MAX_SIDE_DIST = 30.0; // 40 cm max distance away from wall
 
 const double MIN_FRONT_DIST = 50.0; // 30 cm minimum forward distance from wall
 const double SIDE_DIST_DESIRED = 25.0; //25 cm desired distance away from wall
-const double OUTER_MARGIN = 8.0; // 2 cm margin threshold
-const double INNER_MARGIN = 8.0; 
+const double OUTER_MARGIN = 5; // 2 cm margin threshold
+const double INNER_MARGIN = 5; 
 int thresholdRegion = 0; //
 
 void setup (){
@@ -44,7 +37,9 @@ void setup (){
   pinMode(PIN_LEFT_MOTOR, OUTPUT);
   pinMode(PIN_RIGHT_MOTOR, OUTPUT);
   attachInterrupt (0, e_stop, RISING);
+#ifdef DEBUG
   Serial.begin (9600);
+#endif
   init_sensor (&front, PIN_FRONT_SENSOR, IR_SENSOR_150);
   init_sensor (&angled, PIN_ANGLED_SENSOR, IR_SENSOR_80);
 
@@ -88,6 +83,7 @@ void loop (){
       kd = map (kd, 0, 1023, 0, 10);
       ki = map (ki, 0, 1023, 0, 10);
       
+#ifdef DEBUG
       Serial.print ("{");
       Serial.print (kp);
       Serial.print (",");
@@ -95,29 +91,20 @@ void loop (){
       Serial.print (",");
       Serial.print (ki);
       Serial.println ("}");
+#endif
     }
     time=millis();
   }
   
   frontDist =  read_distance (&front);
-  sideDist =  read_distance (&angled);
-
-  if (sideDist > SIDE_DIST_DESIRED - INNER_MARGIN && sideDist < SIDE_DIST_DESIRED + OUTER_MARGIN) {
-    speedControl.SetTunings(CONSKP, CONSKI, CONSKD);
-    thresholdRegion = 1;
-  }
-  else {
-    speedControl.SetTunings(AGGKP, AGGKI, AGGKD);
-    thresholdRegion = 0;
-  }
+	sideDist = read_distance(&angled) * 0.707;
 
   speedControl.Compute();
+
   if (frontDist < MIN_FRONT_DIST) { 
     speedControl.SetMode(MANUAL);
     speedLeft = MIN_MOTOR_SPEED;
     speedRight = MAX_MOTOR_SPEED;
-    //set_Motor_Speed(PIN_LEFT_MOTOR,PIN_RIGHT_MOTOR,speedLeft,speedRight);
-    //set_Speed_both(&left_motor, &right_motor,speedLeft,speedRight);
     analogWrite(PIN_LEFT_MOTOR,speedLeft);
     analogWrite(PIN_RIGHT_MOTOR,speedRight);
     speedControl.SetMode(AUTOMATIC);
@@ -126,8 +113,6 @@ void loop (){
     speedControl.SetMode(MANUAL);
     speedLeft = MAX_MOTOR_SPEED;
     speedRight = MAX_MOTOR_SPEED;
-    //set_Motor_Speed(PIN_LEFT_MOTOR,PIN_RIGHT_MOTOR,speedLeft,speedRight);
-    //set_Speed_both(&left_motor, &right_motor,speedLeft,speedRight);
     analogWrite(PIN_LEFT_MOTOR,speedLeft);
     analogWrite(PIN_RIGHT_MOTOR,speedRight);
     speedControl.SetMode(AUTOMATIC);
@@ -147,6 +132,8 @@ void loop (){
        analogWrite(PIN_RIGHT_MOTOR,speedRight);
     }
   }
+
+#ifdef DEBUG
   Serial.print("Left Motor Speed: ");
   Serial.print(speedLeft);
   Serial.print("\t Right Motor Speed: ");
@@ -157,12 +144,12 @@ void loop (){
   Serial.print(frontDist);
   Serial.print("\t Side Dist: ");
   Serial.println(sideDist);
+#endif
+
   delay (10);
 }
 
 void e_stop (){
-  
-  analogWrite(PIN_LEFT_MOTOR,0);
-  analogWrite(PIN_RIGHT_MOTOR,0);
+	stop_motor();
   e_stop_flag = 1; 
 }

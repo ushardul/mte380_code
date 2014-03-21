@@ -21,9 +21,6 @@
     <ClInclude Include="Visual Micro\.competition_code.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AFMotor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DCMotor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -35,9 +32,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AFMotor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DCMotor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

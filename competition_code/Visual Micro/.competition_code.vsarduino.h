@@ -37,8 +37,6 @@ void e_stop ();
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\arduino.h"
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard\pins_arduino.h" 
 #include "C:\Users\Geo\Documents\GitHub\mte380_code\competition_code\competition_code.ino"
-#include "C:\Users\Geo\Documents\GitHub\mte380_code\competition_code\AFMotor.cpp"
-#include "C:\Users\Geo\Documents\GitHub\mte380_code\competition_code\AFMotor.h"
 #include "C:\Users\Geo\Documents\GitHub\mte380_code\competition_code\DCMotor.cpp"
 #include "C:\Users\Geo\Documents\GitHub\mte380_code\competition_code\DCMotor.h"
 #include "C:\Users\Geo\Documents\GitHub\mte380_code\competition_code\PID_v1.cpp"

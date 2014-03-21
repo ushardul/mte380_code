@@ -73,9 +73,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AFMotor.h">
-      <FileType>CppCode</FileType>
-    </ClInclude>
     <ClInclude Include="DCMotor.h">
       <FileType>CppCode</FileType>
     </ClInclude>
@@ -88,7 +85,6 @@
     <ClInclude Include="Visual Micro\.competition_code.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AFMotor.cpp" />
     <ClCompile Include="DCMotor.cpp" />
     <ClCompile Include="ir_sensor.cpp" />
     <ClCompile Include="PID_v1.cpp" />
