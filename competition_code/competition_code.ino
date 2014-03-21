@@ -83,21 +83,22 @@ void loop (){
     if (state == HIGH)
     {
       state = LOW;
-      set_Speed_both(&left_motor, &right_motor, 0, 0);
+      stop_motor();
     }
     else
-    {
+    { 
       state = HIGH;
       pot_power = analogRead(PIN_SPEED_POT);
       pot_power = map(pot_power,0,1023,0,255);
       
-      int kp = analogRead (PIN_KP_POT);
-      int kd = analogRead (PIN_KD_POT);
-      int ki = analogRead (PIN_KI_POT);
+      int kp = analogRead (PIN_KP_POT)/1023.0*10;
+      int kd = analogRead (PIN_KD_POT)/1023.0*10;
+      int ki = analogRead (PIN_KI_POT)/1023.0*10;
       
-      kp = map (kp, 0, 1023, 0, 10);
-      kd = map (kd, 0, 1023, 0, 10);
-      ki = map (ki, 0, 1023, 0, 10);
+      ramp_speed (0, pot_power);
+      
+      speedControl.SetMode (AUTOMATIC);
+      speedControl.SetTunings (kp, kd, ki);
       
       Serial.print ("{");
       Serial.print (kp);
