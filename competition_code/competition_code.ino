@@ -1,3 +1,4 @@
+
 #include "PID_v1.h"
 #include "ir_sensor.h"
 #include "DCMotor.h"
@@ -10,17 +11,17 @@
 #define PROGRAM_STATE_WAITING           0
 #define PROGRAM_STATE_RUNNING           1
 
-#define MAX_MOTOR_SPEED                 35
-#define MAX_MOTOR_SPEED_RIGHT		(MAX_MOTOR_SPEED + 4)
-#define MAX_MOTOR_SPEED_LEFT		(MAX_MOTOR_SPEED)
+#define MAX_MOTOR_SPEED                 100
+#define MAX_MOTOR_SPEED_RIGHT		(MAX_MOTOR_SPEED)
+#define MAX_MOTOR_SPEED_LEFT		(MAX_MOTOR_SPEED+1)
 #define SPEED_CHANGE                    30
 #define MIN_MOTOR_SPEED			0
 #define LEFT_LIMIT			(-1 * (MAX_MOTOR_SPEED)) // limit the PID deltaSpeed change to maximum motor speed
 #define RIGHT_LIMIT			(MAX_MOTOR_SPEED)
 
-#define PID_KP                          2
-#define PID_KI                          0
-#define PID_KD                          0.2
+#define PID_KP                          1
+#define PID_KI                          1
+#define PID_KD                          1
 
 #define MIN_SIDE_DIST			20.0		// 20 cm minimum distance from wall
 #define MAX_SIDE_DIST			30		// 40 cm max distance away from wall
